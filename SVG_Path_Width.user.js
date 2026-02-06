@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SVG Path Width 🔵
 // @namespace        http://tampermonkey.net/
-// @version        0.3
+// @version        0.4
 // @description        編集画面のpathコードの幅を修正する ショートカット「F9」
 // @author        Ameba Blog User
 // @match        https://*/*
@@ -79,6 +79,7 @@ function main(){
         '<div class="control">'+
         '<a href="'+ help_url +'" target="_blank" rel="noopener noreferrer">'+
         SVG_h +'</a>'+
+        '<input class="single_quote" type="submit" value="To <❛ ❜>">　'+
         '<input class="tab_clear" type="submit" value="Tab Clear">　'+
         '<span>Characters / line：'+
         '<input class="row" type="number" min="20" max="200"></span>　　'+
@@ -105,8 +106,28 @@ function main(){
         document.body.insertAdjacentHTML('beforeend', base); }
 
 
-    pre_work();
 
+    to_single();
+
+
+    function to_single(){
+        let single_quote=document.querySelector('.single_quote');
+        let pre=document.querySelector('.code_panel pre');
+        if(single_quote && pre){
+            single_quote.onclick=function(){
+                pre_code=pre.textContent;
+                if(pre_code){
+                    pre_code=pre_code.replace(/"/g, '▮');
+                    pre_code=pre_code.replace(/'/g, '"');
+                    pre_code=pre_code.replace(/▮/g, "'");
+
+                    pre.textContent=pre_code; }}}
+
+    } // to_single()
+
+
+
+    pre_work();
 
     function pre_work(){
         let tab_clear=document.querySelector('.tab_clear');
@@ -249,5 +270,3 @@ function main(){
     } // output()
 
 } // main()
-
-
