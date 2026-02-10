@@ -79,7 +79,7 @@ function main(){
         '<div class="control">'+
         '<a href="'+ help_url +'" target="_blank" rel="noopener noreferrer">'+
         SVG_h +'</a>'+
-        '<input class="single_quote" type="submit" value="To <❛ ❜>">　'+
+        '<input class="single_quote" type="submit" value="Change ❛ ⇔ ❝">　'+
         '<input class="tab_clear" type="submit" value="Tab Clear">　'+
         '<span>Characters / line：'+
         '<input class="row" type="number" min="20" max="200"></span>　　'+
@@ -88,13 +88,13 @@ function main(){
         '<pre contenteditable="true"></pre>'+
         '<style>'+
         '.code_panel { position: relative; top: 20px; margin: 0 auto;'+
-        'font: normal 16px/20px Meiryo; width: fit-content; min-width: 600px; '+
+        'font: normal 16px/20px Meiryo; width: 98%; min-width: 680px; '+
         'background: #fff; border: 2px solid #2196f3; z-index: 4; } '+
-        '.code_panel .control { display: flex; justify-content: space-evenly; '+
-        'padding: 6px 0 5px; border-top: 1px solid #333; border-bottom: 1px solid #333; '+
-        'background: #c7e5fc; } '+
+        '.code_panel .control { display: flex; justify-content: flex-start; '+
+        'padding: 6px 4px 5px; border-bottom: 1px solid #333; background: #c7e5fc; } '+
         '.code_panel .control .svg_help { vertical-align: -11px; } '+
-        '.code_panel .control input { font: normal 16px/24px Meiryo; padding: 2px 8px 0; } '+
+        '.code_panel .control input { font: normal 16px/24px Meiryo; padding: 2px 8px 0; '+
+        'margin: 0 4px; } '+
         '.code_panel .control .row { width: 50px; padding: 2px 4px 0 12px; vertical-align: 0; } '+
         '.code_panel pre { '+
         'font: normal 16px/20px Meiryo; margin: 0; padding: 20px 30px; '+
@@ -117,13 +117,18 @@ function main(){
             single_quote.onclick=function(){
                 pre_code=pre.textContent;
                 if(pre_code){
-                    pre_code=pre_code.replace(/"/g, '▮');
-                    pre_code=pre_code.replace(/'/g, '"');
-                    pre_code=pre_code.replace(/▮/g, "'");
-
-                    pre.textContent=pre_code; }}}
+                    pre.textContent=single_double(pre_code); }}}
 
     } // to_single()
+
+
+
+    function single_double(pre_text){
+        let pre_text_e=pre_text.replace(/"/g, '▮');
+        pre_text_e=pre_text_e.replace(/'/g, '"');
+        pre_text_e=pre_text_e.replace(/▮/g, "'");
+
+        return pre_text_e; }
 
 
 
@@ -146,19 +151,33 @@ function main(){
 
 
     function get_text(text){
+        let text_0=''; // クォーテーションチェック済
+
         let count=text.match(/'/g).length
+        let count_d=text.match(/"/g).length
         if(count%2==1){ //「'」に端数がある
-            alert("処理対象コードの切出し方に問題あり 「'」が奇数です"); }
+            alert("⛔対象コードは「❛」「❛+」の数が一致しません");
+            if(count_d%2==1){
+                alert("⛔クォーテーションの開始・終結を調べてください"); }
+            else if(count_d%2==0){
+                let ok=confirm(
+                    "行端処理が「❝」「❝＋」のコードとして処理しますか？");
+                if(ok){
+                    text_0=single_double(text); }}}
         else{
-            let top_str=text.substring(0, text.indexOf("'"));
+            text_0=text; }
+
+
+        if(text_0!=''){
+            let top_str=text_0.substring(0, text_0.indexOf("'"));
             if(top_str){ // 最初の「'」より手前に文字がある
                 top_str=top_str.replace(/\s/g,'');
                 if(top_str.length>0){ // 最初の「'」より手前に半角空白以外の文字がある
-                    alert("処理対象コードが「' '」の中から始まっています"); }
+                    alert("⛔対象コードが「❛　❛+」の中から始まっています"); }
                 else{ // 最初の「'」より手前に半角空白以外の文字がない
-                    clean(text); }}
+                    clean(text_0); }}
             else{ // 最初の「'」より手前に文字がない
-                clean(text); }
+                clean(text_0); }
 
 
             function clean(text){
@@ -170,7 +189,9 @@ function main(){
                     if(e==-1){ break; } //「'」がなければ終了
                     stack_g.push(text.substring(s+1, e)); // s e の位置を切出す
                     index=e+1; }
-                return stack_g; }}
+                return stack_g; }
+
+        } // if(text_0!='')
 
     } // get_text()
 
@@ -245,6 +266,10 @@ function main(){
 
 
         function findText(text){
+            let dataimage='';
+            if(text.startsWith('data:image/svg')){ //「data:image/svg」に対応
+                dataimage=text.slice(0, text.indexOf('<')); }
+
             for(let index=0; true;){
                 let s=text.indexOf('<', index); // index位置から検索
                 if(s==-1){ break; } // '<' を見つけたら後方の処理へ
@@ -252,6 +277,10 @@ function main(){
                 if(e==-1){ break; } // '>' を見つけたら後方の処理へ
                 stack_o.push('<'+ text.substring(s +1, e) +'>'); // s e の位置を切出す
                 index=e +1; }
+
+            if(dataimage!=''){
+                stack_o[0]=dataimage+stack_o[0]; } // 先頭に「data:image/svg+xml,」を追加
+
             return stack_o; }
 
 
