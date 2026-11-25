@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SVG Path Width 🔵
 // @namespace        http://tampermonkey.net/
-// @version        0.4
+// @version        0.5
 // @description        編集画面のpathコードの幅を修正する ショートカット「F9」
 // @author        Ameba Blog User
 // @match        https://*/*
@@ -100,6 +100,8 @@ function main(){
         'font: normal 16px/20px Meiryo; margin: 0; padding: 20px 30px; '+
         'max-height: calc(100vh - 165px); overflow-y: scroll; } '+
         '.code_panel pre:focus { outline: none; } '+
+        'body > P, body > svg { display: none; } '+
+        'svg { display: revert; margin: 0; opacity: 1; } '+
         '</style></div>';
 
     if(!document.querySelector('.code_panel')){
